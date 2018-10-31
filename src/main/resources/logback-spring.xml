@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy:MM:dd HH:mm:ss.SSS} %-5level --- [%thread] %logger{35} : %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+    <logger name="jdbc.sqlonly"        level="OFF"/>
+    <logger name="jdbc.sqltiming"      level="OFF"/>
+    <logger name="jdbc.audit"          level="OFF"/>
+    <logger name="jdbc.resultset"      level="OFF"/>
+    <logger name="jdbc.resultsettable" level="OFF"/>
+    <logger name="jdbc.connection"     level="OFF"/>
+
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.springframework.data" level="INFO"/>
+    <logger name="org.springframework.jdbc" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.web3j" level="INFO"/>
+    <logger name="com.boraecosystem" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <!--<appender-ref ref="ASYNC" />-->
+        <appender-ref ref="dailyRollingFileAppender" />
+    </root>
+
+</configuration>

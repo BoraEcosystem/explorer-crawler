@@ -1,0 +1,42 @@
+server:
+  port: 9080
+
+spring:
+  profiles:
+    active: local-app1
+
+  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:file:~/database/crawler-app1;AUTO_SERVER=true
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yourdb1?autoReconnect=true&useSSL=false
+    username: yourname
+    password: secret
+    initialization-mode: always
+    hikari:
+      maximum-pool-size: 3
+      max-lifetime: 200000
+      idle-timeout: 200000
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+#    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
+#  h2:
+#    console:
+#      enabled: true
+
+web3j:
+  client-address:  https://testnet-gethpub1.bora-lagoon.com
+  http-timeout-seconds: 10
+
+application:
+  bora-contract-hash: '0xcbdb17c5d25a4bcda8372327d06ef60f72fe55f2'
+  default-start-block: 1280280
+
+logging.level:
+  com.boraecosystem: INFO
+  com.boraecosystem.explorer.crawler.config: INFO
+

@@ -1,0 +1,48 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.4.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.boraecosystem'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+jar {
+    baseName = 'bora-explorer-crawler'
+    version = version
+}
+
+clean {
+    delete 'out', 'logs'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile ('org.web3j:core:3.5.0')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+//    compile('com.h2database:h2')
+
+    compile('org.apache.commons:commons-lang3:3.7')
+    compile('com.google.guava:guava:18.0')
+
+    runtime('mysql:mysql-connector-java')
+    compileOnly('org.projectlombok:lombok:1.18.0')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
