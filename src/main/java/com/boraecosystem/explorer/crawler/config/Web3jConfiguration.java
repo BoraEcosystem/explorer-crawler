@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jService;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Async;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +22,7 @@ public class Web3jConfiguration {
     public Web3j web3j() {
         Web3jService web3jService = buildService(getClientAddress());
         log.info("Building Web3J Instance for endpoint: " + getClientAddress());
-        return Web3j.build(web3jService);
+        return Web3j.build(web3jService, 1 * 1000L, Async.defaultExecutorService());
     }
 
     private Web3jService buildService(String clientAddress) {
