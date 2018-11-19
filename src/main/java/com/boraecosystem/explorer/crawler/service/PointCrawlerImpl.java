@@ -6,6 +6,7 @@ import com.boraecosystem.explorer.crawler.point.domain.BlockSummary;
 import com.boraecosystem.explorer.crawler.point.domain.LastBlock;
 import com.boraecosystem.explorer.crawler.point.domain.TransactionSummary;
 import com.boraecosystem.explorer.crawler.utils.InputParser;
+import io.reactivex.Flowable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,7 @@ import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.utils.Observables;
-import rx.Observable;
+import org.web3j.utils.Flowables;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -47,25 +47,25 @@ public class PointCrawlerImpl implements Crawler {
 
     @Override
     public void startStream() {
-        start(web3j.blockObservable(true));
+        start(web3j.blockFlowable(true));
     }
 
     @Override
     public void startFrom(BigInteger startBlock) {
-        start(web3j.catchUpToLatestBlockObservable(new DefaultBlockParameterNumber(startBlock), true, web3j.blockObservable(true)));
+        start(web3j.replayPastAndFutureBlocksFlowable(new DefaultBlockParameterNumber(startBlock), true));
     }
 
     @Override
     public void startRange(BigInteger startBlock, BigInteger endBlock) {
         log.debug("startBlock:{}, endBlock:{}", startBlock, endBlock);
-        start(Observables.range(startBlock, endBlock)
+        start(Flowables.range(startBlock, endBlock)
             .map(DefaultBlockParameterNumber::new)
             .map(p -> web3j.ethGetBlockByNumber(p, true))
-            .concatMap(Request::observable));
+            .concatMap(Request::flowable));
     }
 
     @Override
-    public void start(Observable<EthBlock> ethBlockObservable) {
+    public void start(Flowable<EthBlock> ethBlockObservable) {
         ethBlockObservable
             .map(EthBlock::getBlock)
             .doOnNext(block -> log.debug("BLOCK INFO::{}", block))
@@ -89,15 +89,13 @@ public class PointCrawlerImpl implements Crawler {
 
     }
 
-    private Observable<?> handleTransactions(EthBlock.Block block) {
-        return Observable.from(block.getTransactions())
+    private Flowable<?> handleTransactions(EthBlock.Block block) {
+        return Flowable.fromIterable(block.getTransactions())
             .map(EthBlock.TransactionObject.class::cast)
             .doOnNext(transaction -> log.debug("TransactionHash: {}", transaction.get().getHash()))
             .filter(transaction -> isBoraContract(transaction.getTo()))
             .doOnNext(transaction -> setTransaction(block, transaction))
-            //TODO Exception or Logging
-//            .doOnError(e -> log.error("###### Error: {}", e))
-            .doOnCompleted(() -> repositoryService.saveLastBlock(new LastBlock(block.getNumber())));
+            .doOnComplete(() -> repositoryService.saveLastBlock(new LastBlock(block.getNumber())));
     }
 
     @SneakyThrows

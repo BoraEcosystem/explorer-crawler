@@ -1,7 +1,7 @@
 package com.boraecosystem.explorer.crawler.service;
 
+import io.reactivex.Flowable;
 import org.web3j.protocol.core.methods.response.EthBlock;
-import rx.Observable;
 
 import java.math.BigInteger;
 
@@ -13,5 +13,5 @@ public interface Crawler {
 
     void startFrom(BigInteger startBlock);
 
-    void start(Observable<EthBlock> ethBlockObservable);
+    void start(Flowable<EthBlock> ethBlockObservable);
 }
